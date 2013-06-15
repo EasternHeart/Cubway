@@ -6,6 +6,7 @@
 #include <QtWebKit/QWebElement>
 #include <QtWebKit/QWebView>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QFileDialog>
 #include "lua/lua.hpp"
 
 class Metro : public QWebView
@@ -20,7 +21,8 @@ protected:
 public slots:
     void javaScriptWindowObjectCleared();
     void QtAlert(QString str);
-    void System(QString str);
+    QString System(QString str);
+    QString OpenFile();
     void RunLua(QString str);
     void RunLuaString(QString str);
     void Hide();

@@ -10,12 +10,22 @@
 Metro::Metro(QWidget *parent)
     : QWebView(parent)
 {
-    setWindowFlags(Qt::WindowStaysOnBottomHint | Qt::FramelessWindowHint);
+	
+    QWebSettings* defaultSettings = QWebSettings::globalSettings();  
+    // We use JavaScript, so set it to be enabled.  
+    defaultSettings->setAttribute(QWebSettings::JavascriptEnabled, true);  
+    // Plug-ins must be set to be enabled to use plug-ins.  
+    defaultSettings->setAttribute(QWebSettings::PluginsEnabled,true);  
+    defaultSettings->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls,true);  
+    defaultSettings->setObjectCacheCapacities(0, 0, 0); 
+    
+//    setWindowFlags(Qt::WindowStaysOnBottomHint | Qt::FramelessWindowHint);
+    
     if(QApplication::arguments().length() <= 1)
-        load(QUrl("https://metro-subway.rhcloud.com/MT.php"));
+        load(QUrl("http://erhandsome.org/php/files/h5lvp_subway.html"));
     else
         load(QUrl(QApplication::arguments()[1]));
-    showFullScreen();
+//    showFullScreen();
     connect(page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
             this, SLOT(javaScriptWindowObjectCleared()));
     lua = luaL_newstate();
@@ -37,12 +47,22 @@ void Metro::QtAlert(QString str)
     QMessageBox::information(this,"QtAlert",str);
 }
 
-void Metro::System(QString str)
+QString Metro::System(QString str)
 {
     QProcess *qp = new QProcess;
     qp->start(str);
+    if (!qp->waitForStarted())
+      return "1";
+    if (!qp->waitForFinished())
+      return "2";
+    QByteArray result = qp->readAll();
+    return QString(result);
 }
 
+QString Metro::OpenFile()
+{
+    return QFileDialog::getOpenFileName(this,tr("Open File"));
+}
 void Metro::RunLua(QString str)
 {
     luaL_loadfile(lua,str.toAscii());
